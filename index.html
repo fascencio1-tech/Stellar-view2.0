@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07111f">
+    <meta name="description" content="Stellar View: imágenes, historias y descubrimientos para explorar el universo.">
+    <title>Stellar View — Explora el universo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Exo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-overlay" aria-hidden="true"></div>
+
+    <div class="container">
+        <header class="site-header">
+            <a class="brand" href="#home" onclick="navigate('home'); return false;" aria-label="Stellar View, inicio">
+                <img src="StellarView.jpeg" alt="" class="logo">
+                <span class="brand-copy">
+                    <span class="brand-kicker">Una ventana al cosmos</span>
+                    <span class="main-title">Stellar <span>View</span></span>
+                </span>
+            </a>
+
+            <nav class="button-container" aria-label="Navegación principal">
+                <button class="nav-button is-current" type="button" onclick="navigate('home')">Inicio</button>
+                <button class="nav-button" type="button" onclick="navigate('articles')">Artículos</button>
+                <button class="nav-button" type="button" onclick="navigate('gallery')">Galería</button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="home" class="screen active" aria-labelledby="home-heading">
+                <div class="section-intro">
+                    <p class="eyebrow"><span class="status-dot"></span> Observatorio digital</p>
+                    <h1 id="home-heading">El universo, <span>un día a la vez.</span></h1>
+                    <p class="intro-copy">Descubre la imagen astronómica del día y déjate llevar más allá de nuestro planeta.</p>
+                </div>
+                <div id="nasa-loading" class="loading" role="status"><span class="loader-orbit" aria-hidden="true"></span>Sintonizando el cosmos…</div>
+                <p id="nasa-error" class="apod-error hidden" role="alert"></p>
+
+                <div id="nasa-content" class="card hidden">
+                    <p class="eyebrow">Imagen astronómica del día</p>
+                    <h2 id="apod-title" class="apod-title"></h2>
+                    <div class="separator"></div>
+                    <div id="apod-media" class="apod-media">
+                        <img id="apod-image" class="apod-image" src="" alt="Imagen astronómica del día">
+                    </div>
+                    <p id="apod-text" class="card-text"></p>
+                    <button id="apod-read-more" class="read-more-btn" type="button">Ver más <span aria-hidden="true">↓</span></button>
+                    <p id="apod-date" class="date-text"></p>
+                </div>
+            </section>
+
+            <section id="articles" class="screen hidden" aria-labelledby="articles-heading">
+                <div class="section-intro section-intro-compact">
+                    <p class="eyebrow">Ideas que viajan lejos</p>
+                    <h1 id="articles-heading">Historias del <span>espacio.</span></h1>
+                    <p class="intro-copy">Lecturas para entender mejor el universo que nos rodea.</p>
+                </div>
+                <div id="articles-loading" class="loading">Conectando con el observatorio…</div>
+                <div id="articles-container" class="articles-list"></div>
+            </section>
+
+            <section id="gallery" class="screen hidden" aria-labelledby="gallery-heading">
+                <div class="section-intro section-intro-compact">
+                    <p class="eyebrow">Luz de otros mundos</p>
+                    <h1 id="gallery-heading">Galería <span>espacial.</span></h1>
+                    <p class="intro-copy">Un atlas visual del universo. Nuevas imágenes, muy pronto.</p>
+                </div>
+                <div class="coming-soon"><span class="coming-icon" aria-hidden="true">✦</span><p>Estamos preparando la próxima expedición.</p></div>
+            </section>
+        </main>
+
+        <footer class="site-footer"><span>STELLAR VIEW</span><span>Hecho para quienes miran más allá.</span></footer>
+    </div>
+
+    <script>
+        // API pública del backend desplegado en Railway.
+        window.ORBIT_API_BASE = 'https://orbit-back-production-2884.up.railway.app/api';
+    </script>
+    <script src="app.js"></script>
+</body>
+
+</html>
