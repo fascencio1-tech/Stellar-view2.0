@@ -69,10 +69,50 @@
             <section id="gallery" class="screen hidden" aria-labelledby="gallery-heading">
                 <div class="section-intro section-intro-compact">
                     <p class="eyebrow">Luz de otros mundos</p>
-                    <h1 id="gallery-heading">Galería <span>espacial.</span></h1>
-                    <p class="intro-copy">Un atlas visual del universo. Nuevas imágenes, muy pronto.</p>
+                    <h1 id="gallery-heading">Galería <span>astrofotográfica.</span></h1>
+                    <p class="intro-copy">Un espacio para compartir el cielo que vemos desde aquí. Explora una vista previa o prepara tu propia fotografía.</p>
                 </div>
-                <div class="coming-soon"><span class="coming-icon" aria-hidden="true">✦</span><p>Estamos preparando la próxima expedición.</p></div>
+                <div class="gallery-layout">
+                    <section class="gallery-submit card" aria-labelledby="gallery-form-heading">
+                        <p class="eyebrow">Tu mirada del cosmos</p>
+                        <h2 id="gallery-form-heading" class="apod-title">Prepara una fotografía</h2>
+                        <p class="gallery-note">Añade una imagen para ver cómo quedaría en la galería. Esta vista previa solo se conserva mientras esta página permanezca abierta; aún no se envía al servidor ni es visible para otras personas.</p>
+                        <form id="gallery-form" class="gallery-form">
+                            <label class="gallery-field">Fotografía
+                                <input id="gallery-image" name="image" type="file" accept="image/*" required>
+                            </label>
+                            <label class="gallery-field">Título
+                                <input name="title" type="text" maxlength="90" placeholder="Ej. La nebulosa de Orión" required>
+                            </label>
+                            <div class="gallery-form-row">
+                                <label class="gallery-field">Autor o autora
+                                    <input name="author" type="text" maxlength="70" placeholder="Tu nombre" required>
+                                </label>
+                                <label class="gallery-field">Objeto celeste
+                                    <input name="object" type="text" maxlength="70" placeholder="Ej. M42">
+                                </label>
+                            </div>
+                            <label class="gallery-field">Detalles (opcional)
+                                <textarea name="details" rows="3" maxlength="240" placeholder="Equipo, exposición o lugar de captura"></textarea>
+                            </label>
+                            <button class="gallery-submit-button" type="submit">Agregar vista previa</button>
+                            <p id="gallery-form-status" class="gallery-form-status" role="status" aria-live="polite"></p>
+                        </form>
+                    </section>
+                    <section class="gallery-showcase" aria-labelledby="gallery-showcase-heading">
+                        <div class="gallery-showcase-heading">
+                            <div>
+                                <p class="eyebrow">Fotos guardadas en Orbit</p>
+                                <h2 id="gallery-showcase-heading">Galería de la comunidad</h2>
+                            </div>
+                            <span id="gallery-count" class="gallery-count">0 fotos</span>
+                        </div>
+                        <p id="gallery-load-status" class="gallery-load-status" role="status" aria-live="polite">Conectando con Orbit…</p>
+                        <div id="gallery-grid" class="gallery-grid">
+                            <div id="gallery-empty" class="gallery-empty hidden"><span class="coming-icon" aria-hidden="true">✦</span><p>Aún no hay fotografías publicadas en Orbit.</p></div>
+                        </div>
+                    </section>
+                </div>
             </section>
         </main>
 

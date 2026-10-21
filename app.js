@@ -10,6 +10,9 @@ let articlesData = [];
 let expandedArticleId = null;
 let articlesLoaded = false;
 let apodExpanded = false;
+const galleryPhotos = [];
+let orbitGalleryPhotos = [];
+let galleryLoaded = false;
 
 async function loadApod() {
   const loadingEl = document.getElementById('nasa-loading');
@@ -153,6 +156,7 @@ window.navigate = function navigate(screenId) {
   });
 
   if (screenId === 'articles' && !articlesLoaded) loadArticles();
+  if (screenId === 'gallery' && !galleryLoaded) loadGallery();
 };
 
 async function fetchPublications() {
@@ -258,3 +262,124 @@ window.toggleArticle = function toggleArticle(id) {
   expandedArticleId = expandedArticleId === id ? null : id;
   renderArticles();
 };
+
+document.getElementById('gallery-form')?.addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('gallery-form-status');
+  const imageInput = form.elements.image;
+  const file = imageInput.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    status.textContent = 'Selecciona un archivo de imagen.';
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    status.textContent = 'La imagen debe pesar menos de 10 MB.';
+    return;
+  }
+
+  galleryPhotos.unshift({
+    imageUrl: URL.createObjectURL(file),
+    title: form.elements.title.value.trim(),
+    author: form.elements.author.value.trim(),
+    object: form.elements.object.value.trim(),
+    details: form.elements.details.value.trim()
+  });
+  renderGallery();
+  form.reset();
+  status.textContent = 'Vista previa agregada. Solo es visible en esta sesión.';
+});
+
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  const empty = document.getElementById('gallery-empty');
+  const count = document.getElementById('gallery-count');
+  const status = document.getElementById('gallery-load-status');
+  if (!grid) return;
+  empty?.classList.toggle('hidden', orbitGalleryPhotos.length > 0 || !galleryLoaded);
+  if (count) count.textContent = `${orbitGalleryPhotos.length} ${orbitGalleryPhotos.length === 1 ? 'foto' : 'fotos'}`;
+  if (status) status.classList.toggle('hidden', galleryLoaded);
+  grid.querySelectorAll('.gallery-photo-card').forEach(card => card.remove());
+
+  [...orbitGalleryPhotos.map(photo => ({ ...photo, isLocalPreview: false })), ...galleryPhotos].forEach(photo => {
+    const card = document.createElement('article');
+    card.className = 'gallery-photo-card';
+    if (photo.isLocalPreview) card.classList.add('is-local-preview');
+    const image = document.createElement('img');
+    image.src = photo.imageUrl;
+    image.alt = `${photo.title}, fotografía de ${photo.author}`;
+    image.loading = 'lazy';
+    const caption = document.createElement('div');
+    caption.className = 'gallery-photo-caption';
+    const title = document.createElement('h3');
+    title.textContent = photo.title;
+    const author = document.createElement('p');
+    author.className = 'gallery-photo-credit';
+    author.textContent = [photo.author, photo.object].filter(Boolean).join(' · ');
+    caption.append(title, author);
+    if (photo.details) {
+      const details = document.createElement('p');
+      details.className = 'gallery-photo-details';
+      details.textContent = photo.details;
+      caption.appendChild(details);
+    }
+    if (photo.isLocalPreview) {
+      const badge = document.createElement('span');
+      badge.className = 'gallery-photo-badge';
+      badge.textContent = 'Vista previa de esta sesión';
+      caption.appendChild(badge);
+    }
+    card.append(image, caption);
+    grid.append(card);
+  });
+}
+
+async function loadGallery() {
+  const status = document.getElementById('gallery-load-status');
+  if (status) {
+    status.textContent = 'Cargando fotografías de Orbit…';
+    status.classList.remove('hidden', 'is-error');
+  }
+
+  try {
+    let response;
+    for (const route of ['/gallery', '/photos']) {
+      response = await fetch(`${ORBIT_API}${route}`);
+      if (response.ok) break;
+    }
+    if (!response?.ok) throw new Error(`Orbit respondió HTTP ${response?.status || 'sin respuesta'}`);
+
+    const result = await response.json();
+    if (!Array.isArray(result.data)) throw new Error('La respuesta de Orbit no contiene una lista de fotos');
+    orbitGalleryPhotos = result.data.flatMap(item => {
+      const imageUrl = toSafeImageUrl(item.image_url);
+      if (!imageUrl) return [];
+      return [{
+        imageUrl,
+        title: item.title || 'Fotografía astronómica',
+        author: item.author || item.photographer || '',
+        object: item.object_name || '',
+        details: [item.equipment, item.created_at].filter(Boolean).join(' · ')
+      }];
+    });
+    galleryLoaded = true;
+    renderGallery();
+  } catch (error) {
+    console.error('Error al cargar la galería desde Orbit:', error);
+    if (status) {
+      status.textContent = 'No se pudo cargar la galería. Revisa que Orbit tenga activa la ruta /api/gallery (o /api/photos).';
+      status.classList.add('is-error');
+    }
+  }
+}
+
+function toSafeImageUrl(value) {
+  if (typeof value !== 'string' || !value.trim()) return '';
+  try {
+    const url = new URL(value, window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch {
+    return '';
+  }
+}
