@@ -124,8 +124,6 @@ main { width: min(100%, 960px); min-height: 62vh; margin: 0 auto; }
 .gallery-photo-caption h3 { margin: 0; overflow-wrap: anywhere; font: 600 1.05rem/1.3 var(--display); }
 .gallery-photo-credit { margin: 7px 0 0; color: var(--cyan); font-size: .72rem; }
 .gallery-photo-details { margin: 9px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.55; }
-.gallery-photo-card.is-local-preview { border-style: dashed; }
-.gallery-photo-badge { display: inline-flex; margin-top: 12px; padding: 4px 8px; border: 1px solid rgba(128, 228, 238, .25); border-radius: 999px; color: var(--cyan); font-size: .62rem; }
 @keyframes gallery-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .coming-icon { color: var(--cyan); font-size: 1.8rem; text-shadow: 0 0 20px rgba(128, 228, 238, .6); }
 .site-footer { display: flex; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--soft); font-size: .68rem; letter-spacing: .06em; }

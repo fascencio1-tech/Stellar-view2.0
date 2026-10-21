@@ -76,10 +76,10 @@
                     <section class="gallery-submit card" aria-labelledby="gallery-form-heading">
                         <p class="eyebrow">Tu mirada del cosmos</p>
                         <h2 id="gallery-form-heading" class="apod-title">Prepara una fotografía</h2>
-                        <p class="gallery-note">Añade una imagen para ver cómo quedaría en la galería. Esta vista previa solo se conserva mientras esta página permanezca abierta; aún no se envía al servidor ni es visible para otras personas.</p>
+                        <p class="gallery-note">Comparte tu astrofotografía con la comunidad. Al enviarla, Orbit guardará la imagen y sus datos para que aparezca en la galería. Formatos: JPG, PNG, WEBP o GIF, hasta 5 MB.</p>
                         <form id="gallery-form" class="gallery-form">
                             <label class="gallery-field">Fotografía
-                                <input id="gallery-image" name="image" type="file" accept="image/*" required>
+                                <input id="gallery-image" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
                             </label>
                             <label class="gallery-field">Título
                                 <input name="title" type="text" maxlength="90" placeholder="Ej. La nebulosa de Orión" required>
@@ -95,7 +95,7 @@
                             <label class="gallery-field">Detalles (opcional)
                                 <textarea name="details" rows="3" maxlength="240" placeholder="Equipo, exposición o lugar de captura"></textarea>
                             </label>
-                            <button class="gallery-submit-button" type="submit">Agregar vista previa</button>
+                            <button class="gallery-submit-button" type="submit">Compartir fotografía</button>
                             <p id="gallery-form-status" class="gallery-form-status" role="status" aria-live="polite"></p>
                         </form>
                     </section>

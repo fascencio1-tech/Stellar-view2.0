@@ -10,7 +10,6 @@ let articlesData = [];
 let expandedArticleId = null;
 let articlesLoaded = false;
 let apodExpanded = false;
-const galleryPhotos = [];
 let orbitGalleryPhotos = [];
 let galleryLoaded = false;
 
@@ -263,33 +262,62 @@ window.toggleArticle = function toggleArticle(id) {
   renderArticles();
 };
 
-document.getElementById('gallery-form')?.addEventListener('submit', event => {
+document.getElementById('gallery-form')?.addEventListener('submit', async event => {
   event.preventDefault();
   const form = event.currentTarget;
   const status = document.getElementById('gallery-form-status');
-  const imageInput = form.elements.image;
+  const submitButton = form.querySelector('[type="submit"]');
+  const imageInput = form.elements.namedItem('image');
   const file = imageInput.files?.[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    status.textContent = 'Selecciona un archivo de imagen.';
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  if (!allowedTypes.includes(file.type)) {
+    status.textContent = 'Usa una imagen JPG, PNG, WEBP o GIF.';
     return;
   }
-  if (file.size > 10 * 1024 * 1024) {
-    status.textContent = 'La imagen debe pesar menos de 10 MB.';
+  if (file.size > 5 * 1024 * 1024) {
+    status.textContent = 'La imagen debe pesar 5 MB o menos.';
     return;
   }
 
-  galleryPhotos.unshift({
-    imageUrl: URL.createObjectURL(file),
-    title: form.elements.title.value.trim(),
-    author: form.elements.author.value.trim(),
-    object: form.elements.object.value.trim(),
-    details: form.elements.details.value.trim()
-  });
-  renderGallery();
-  form.reset();
-  status.textContent = 'Vista previa agregada. Solo es visible en esta sesión.';
+  submitButton.disabled = true;
+  status.textContent = 'Subiendo fotografía a Orbit…';
+  try {
+    const image = await readFileAsDataUrl(file);
+    const response = await fetch(`${ORBIT_API}/gallery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: form.elements.namedItem('title').value.trim(),
+        author: form.elements.namedItem('author').value.trim(),
+        object_name: form.elements.namedItem('object').value.trim(),
+        equipment: form.elements.namedItem('details').value.trim(),
+        image
+      })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || `Orbit respondió HTTP ${response.status}`);
+
+    form.reset();
+    status.textContent = 'Fotografía compartida. Ya está guardada en Orbit.';
+    galleryLoaded = false;
+    await loadGallery();
+  } catch (error) {
+    console.error('No se pudo compartir la fotografía en Orbit:', error);
+    status.textContent = `No se pudo compartir la fotografía. ${error.message || 'Revisa tu conexión con Orbit.'}`;
+  } finally {
+    submitButton.disabled = false;
+  }
 });
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo seleccionado.'));
+    reader.readAsDataURL(file);
+  });
+}
 
 function renderGallery() {
   const grid = document.getElementById('gallery-grid');
@@ -302,10 +330,9 @@ function renderGallery() {
   if (status) status.classList.toggle('hidden', galleryLoaded);
   grid.querySelectorAll('.gallery-photo-card').forEach(card => card.remove());
 
-  [...orbitGalleryPhotos.map(photo => ({ ...photo, isLocalPreview: false })), ...galleryPhotos].forEach(photo => {
+  orbitGalleryPhotos.forEach(photo => {
     const card = document.createElement('article');
     card.className = 'gallery-photo-card';
-    if (photo.isLocalPreview) card.classList.add('is-local-preview');
     const image = document.createElement('img');
     image.src = photo.imageUrl;
     image.alt = `${photo.title}, fotografía de ${photo.author}`;
@@ -323,12 +350,6 @@ function renderGallery() {
       details.className = 'gallery-photo-details';
       details.textContent = photo.details;
       caption.appendChild(details);
-    }
-    if (photo.isLocalPreview) {
-      const badge = document.createElement('span');
-      badge.className = 'gallery-photo-badge';
-      badge.textContent = 'Vista previa de esta sesión';
-      caption.appendChild(badge);
     }
     card.append(image, caption);
     grid.append(card);
@@ -377,7 +398,7 @@ async function loadGallery() {
 function toSafeImageUrl(value) {
   if (typeof value !== 'string' || !value.trim()) return '';
   try {
-    const url = new URL(value, window.location.href);
+    const url = new URL(value, `${ORBIT_API}/`);
     return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
   } catch {
     return '';
